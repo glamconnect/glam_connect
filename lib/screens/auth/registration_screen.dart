@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:glam_connect/providers/main_provider.dart';
+import 'package:glam_connect/services/auth_service.dart';
 import 'package:glam_connect/widgets/auth/auth_background.dart';
 import 'package:glam_connect/widgets/auth/auth_footer.dart';
 import 'package:glam_connect/widgets/auth/auth_form_container.dart';
@@ -6,21 +9,21 @@ import 'package:glam_connect/widgets/common/app_logo.dart';
 import 'package:glam_connect/widgets/common/custom_button.dart';
 import 'package:glam_connect/widgets/common/custom_text_field.dart';
 
-class RegistrationScreen extends StatefulWidget {
+class RegistrationScreen extends ConsumerStatefulWidget {
   const RegistrationScreen({Key? key}) : super(key: key);
 
   @override
-  State<RegistrationScreen> createState() => _RegistrationScreenState();
+  ConsumerState<RegistrationScreen> createState() => _RegistrationScreenState();
 }
 
-class _RegistrationScreenState extends State<RegistrationScreen> {
+class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _cityController = TextEditingController();
   final _otpController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _isOtpSent = false;
   String? _verificationId;
@@ -41,36 +44,86 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         _isLoading = true;
       });
 
-      // TODO: Implement Firebase Phone Authentication
-      await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
+      final phoneNumber = '+${_phoneController.text.trim()}';
 
-      setState(() {
-        _isLoading = false;
-        _isOtpSent = true;
-        _verificationId = 'dummy-verification-id';
-      });
+      await ref
+          .read(authServiceProvider)
+          .signInWithPhone(
+            phoneNumber: phoneNumber,
+            onVerificationSent: (verificationId) {
+              setState(() {
+                _isLoading = false;
+                _isOtpSent = true;
+                _verificationId = verificationId;
+              });
+            },
+            onError: (error) {
+              setState(() {
+                _isLoading = false;
+              });
+
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('Error: $error')));
+            },
+          );
     }
   }
 
   Future<void> _verifyOtpAndRegister() async {
-    if (_otpController.text.length == 6) {
+    if (_otpController.text.length == 6 && _verificationId != null) {
       setState(() {
         _isLoading = true;
       });
 
-      // TODO: Implement OTP verification with Firebase
-      await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
+      final user = await ref
+          .read(authServiceProvider)
+          .verifyOTP(
+            verificationId: _verificationId!,
+            otp: _otpController.text.trim(),
+          );
 
-      // TODO: Create user in Firestore
-      
-      setState(() {
-        _isLoading = false;
-      });
+      if (user != null) {
+        // Register user in Firestore
+        final userModel = await ref
+            .read(authServiceProvider)
+            .registerUser(
+              name: _nameController.text.trim(),
+              phoneNumber: _phoneController.text.trim(),
+              email: _emailController.text.trim(),
+              city: _cityController.text.trim(),
+            );
 
-      // Navigate to home page after successful registration
-      if (mounted) {
-        // TODO: Navigate to appropriate screen
-        // Navigator.of(context).pushReplacementNamed('/home');
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (userModel != null) {
+          // Update main provider with new user
+          await ref.read(mainProvider.notifier).getIfUserLoggedIn();
+
+          if (mounted) {
+            Navigator.of(context).pushReplacementNamed('/');
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Error creating user. Please try again.'),
+              ),
+            );
+          }
+        }
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Invalid OTP. Please try again.')),
+          );
+        }
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -82,7 +135,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return AuthBackground(
-      backgroundImage: 'assets/images/salon_background.jpg', // You'll need to add this image
+      backgroundImage:
+          'assets/images/salon_background.png', // You'll need to add this image
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -90,9 +144,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           const SizedBox(height: 40),
           AuthFormContainer(
             title: _isOtpSent ? 'Verify OTP' : 'Sign Up',
-            subtitle: _isOtpSent
-                ? 'Enter the 6-digit code sent to ${_phoneController.text}'
-                : 'Create an account to book beauty services',
+            subtitle:
+                _isOtpSent
+                    ? 'Enter the 6-digit code sent to ${_phoneController.text}'
+                    : 'Create an account to book beauty services',
             child: Form(
               key: _formKey,
               child: Column(
@@ -158,7 +213,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       controller: _otpController,
                       keyboardType: TextInputType.number,
                       validator: (value) {
-                        if (value == null || value.isEmpty || value.length != 6) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.length != 6) {
                           return 'Please enter a valid 6-digit OTP';
                         }
                         return null;
@@ -191,8 +248,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             questionText: "Already have an account?",
             linkText: "Sign in here",
             onLinkTap: () {
-              // TODO: Navigate to login screen
-              // Navigator.of(context).pushNamed('/login');
+              Navigator.of(context).pushNamed('/login');
             },
           ),
         ],

@@ -1,54 +1,51 @@
 import 'package:flutter/material.dart';
 
 class AuthFormContainer extends StatelessWidget {
-  final Widget child;
   final String title;
-  final String? subtitle;
-  
+  final String subtitle;
+  final Widget child;
+
   const AuthFormContainer({
     Key? key,
-    required this.child,
     required this.title,
-    this.subtitle,
+    required this.subtitle,
+    required this.child,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(
-          color: Colors.green.withOpacity(0.3),
-          width: 1.0,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            spreadRadius: 2,
+          ),
+        ],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
             style: const TextStyle(
-              fontSize: 28,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.black87,
             ),
           ),
-          if (subtitle != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Text(
-                subtitle!,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white.withOpacity(0.8),
-                ),
-              ),
+          const SizedBox(height: 8),
+          Text(
+            subtitle,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.black54,
             ),
+          ),
           const SizedBox(height: 24),
           child,
         ],

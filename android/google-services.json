@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "747218037971",
+    "project_id": "glamconnect-4000e",
+    "storage_bucket": "glamconnect-4000e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:747218037971:android:164cd75698a109a8ee7826",
+        "android_client_info": {
+          "package_name": "com.glamconnect.glamConnect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqrPxuImhCjABF_dARY8lAlWVnePr-Jc8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

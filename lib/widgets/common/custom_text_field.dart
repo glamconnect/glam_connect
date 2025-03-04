@@ -1,75 +1,90 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomTextField extends StatelessWidget {
   final String hintText;
-  final TextEditingController? controller;
-  final TextInputType keyboardType;
+  final TextEditingController controller;
   final bool obscureText;
+  final TextInputType keyboardType;
   final String? Function(String?)? validator;
-  final void Function(String)? onChanged;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
-  final FocusNode? focusNode;
-  final bool autofocus;
-  final EdgeInsetsGeometry? contentPadding;
-  final BoxConstraints? constraints;
+  final int? maxLines;
+  final int? maxLength;
+  final List<TextInputFormatter>? inputFormatters;
+  final Function(String)? onChanged;
+  final bool enabled;
 
   const CustomTextField({
     Key? key,
     required this.hintText,
-    this.controller,
-    this.keyboardType = TextInputType.text,
+    required this.controller,
     this.obscureText = false,
+    this.keyboardType = TextInputType.text,
     this.validator,
-    this.onChanged,
     this.prefixIcon,
     this.suffixIcon,
-    this.focusNode,
-    this.autofocus = false,
-    this.contentPadding,
-    this.constraints,
+    this.maxLines = 1,
+    this.maxLength,
+    this.inputFormatters,
+    this.onChanged,
+    this.enabled = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      constraints: constraints,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
         controller: controller,
-        keyboardType: keyboardType,
         obscureText: obscureText,
+        keyboardType: keyboardType,
         validator: validator,
+        maxLines: maxLines,
+        maxLength: maxLength,
+        inputFormatters: inputFormatters,
         onChanged: onChanged,
-        focusNode: focusNode,
-        autofocus: autofocus,
+        enabled: enabled,
         decoration: InputDecoration(
           hintText: hintText,
           prefixIcon: prefixIcon,
           suffixIcon: suffixIcon,
-          contentPadding: contentPadding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           filled: true,
-          fillColor: Colors.white.withOpacity(0.7),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide(color: Colors.green.shade300, width: 1),
+          fillColor: Colors.grey[100],
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 14.0,
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide(color: Colors.green.shade300, width: 1),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide(color: Colors.green.shade500, width: 2),
+            borderRadius: BorderRadius.circular(8.0),
+            borderSide: const BorderSide(
+              color: Colors.green,
+              width: 2.0,
+            ),
           ),
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: const BorderSide(color: Colors.red, width: 1),
+            borderRadius: BorderRadius.circular(8.0),
+            borderSide: const BorderSide(
+              color: Colors.red,
+              width: 1.0,
+            ),
           ),
           focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: const BorderSide(color: Colors.red, width: 2),
+            borderRadius: BorderRadius.circular(8.0),
+            borderSide: const BorderSide(
+              color: Colors.red,
+              width: 2.0,
+            ),
           ),
+          errorStyle: const TextStyle(color: Colors.red),
+        ),
+        style: const TextStyle(
+          fontSize: 16.0,
+          color: Colors.black87,
         ),
       ),
     );

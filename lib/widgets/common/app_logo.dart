@@ -2,42 +2,38 @@ import 'package:flutter/material.dart';
 
 class AppLogo extends StatelessWidget {
   final double size;
-  final Color? textColor;
-  final bool showTagline;
-  
+
   const AppLogo({
     Key? key,
-    this.size = 40.0,
-    this.textColor,
-    this.showTagline = true,
+    this.size = 64,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          'Glam Connect',
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(
+          'GC',
           style: TextStyle(
-            fontSize: size,
+            fontSize: size * 0.5,
             fontWeight: FontWeight.bold,
-            color: textColor ?? Colors.white,
-            fontFamily: 'Cursive', // You'll need to add this font to your pubspec.yaml
+            color: Colors.green,
           ),
         ),
-        if (showTagline)
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Text(
-              'Connect with beauty professionals',
-              style: TextStyle(
-                fontSize: size * 0.3,
-                color: textColor ?? Colors.white,
-              ),
-            ),
-          ),
-      ],
+      ),
     );
   }
 }

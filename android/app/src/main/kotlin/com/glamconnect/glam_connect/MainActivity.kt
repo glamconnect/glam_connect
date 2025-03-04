@@ -1,4 +1,4 @@
-package com.glamconnect.glam_connect
+package com.glamconnect.glamConnect
 
 import io.flutter.embedding.android.FlutterActivity
 
