@@ -209,14 +209,14 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                     ),
                   ] else ...[
                     CustomTextField(
-                      hintText: 'Enter 6-digit OTP',
+                      hintText: 'Enter 4-digit OTP',
                       controller: _otpController,
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value == null ||
                             value.isEmpty ||
-                            value.length != 6) {
-                          return 'Please enter a valid 6-digit OTP';
+                            value.length != 4) {
+                          return 'Please enter a valid 4-digit OTP';
                         }
                         return null;
                       },

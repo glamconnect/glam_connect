@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:glam_connect/models/user_model.dart';
+import 'package:glam_connect/utils/constants.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -13,7 +14,7 @@ class AuthService {
     if (user == null) return null;
 
     try {
-      final userDoc = await _firestore.collection('users').doc(user.uid).get();
+      final userDoc = await _firestore.collection(Constants.usersCollection).doc(user.uid).get();
       if (userDoc.exists) {
         return UserModel.fromJson({
           'id': user.uid,
@@ -95,7 +96,7 @@ class AuthService {
         if (salonId != null) 'salonId': salonId,
       };
 
-      await _firestore.collection('users').doc(user.uid).set(userData);
+      await _firestore.collection(Constants.usersCollection).doc(user.uid).set(userData);
 
       return UserModel(
         id: user.uid,
@@ -123,7 +124,7 @@ class AuthService {
   Future<List<UserModel>> getUsersByRole(UserRole role) async {
     try {
       final querySnapshot = await _firestore
-          .collection('users')
+          .collection(Constants.usersCollection)
           .where('role', isEqualTo: role.toString().split('.').last)
           .get();
 
@@ -143,7 +144,7 @@ class AuthService {
   Future<UserModel?> getUserByPhone(String phoneNumber) async {
     try {
       final querySnapshot = await _firestore
-          .collection('users')
+          .collection(Constants.usersCollection)
           .where('phoneNumber', isEqualTo: phoneNumber)
           .limit(1)
           .get();
@@ -163,7 +164,11 @@ class AuthService {
   }
 
   // Update user role
-  Future<bool> updateUserRole(String userId, UserRole newRole, {String? salonId}) async {
+  Future<bool> updateUserRole({
+    required String userId,
+    required UserRole newRole,
+    String? salonId,
+  }) async {
     try {
       final updateData = {
         'role': newRole.toString().split('.').last,
@@ -174,7 +179,7 @@ class AuthService {
         updateData['salonId'] = salonId;
       }
 
-      await _firestore.collection('users').doc(userId).update(updateData);
+      await _firestore.collection(Constants.usersCollection).doc(userId).update(updateData);
       return true;
     } catch (e) {
       print('Error updating user role: $e');

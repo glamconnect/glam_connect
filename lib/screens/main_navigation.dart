@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:glam_connect/models/user_model.dart';
 import 'package:glam_connect/providers/main_provider.dart';
+import 'package:glam_connect/screens/admin/salon_list_screen.dart';
 import 'package:glam_connect/screens/auth/login_screen.dart';
 import 'package:glam_connect/utils/app_theme.dart';
 
@@ -263,10 +264,10 @@ class _MainNavigationPageState extends ConsumerState<MainNavigationPage> {
       
       case UserRole.superAdmin:
         switch (index) {
-          case 0: return const Center(child: Text('Super Admin Salons Page'));
+          case 0: return const SalonListScreen();
           case 1: return const Center(child: Text('Super Admin Analytics Page'));
           case 2: return const Center(child: Text('Super Admin Profile Page'));
-          default: return const Center(child: Text('Super Admin Salons Page'));
+          default: return const SalonListScreen();
         }
       
       default:
