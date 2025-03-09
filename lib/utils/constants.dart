@@ -1,6 +1,22 @@
 import 'package:flutter/material.dart';
 
 class Constants {
+  // Phone number formatting
+  static String formatPhoneNumber(dynamic phoneNumber) {
+    if (phoneNumber == null) return '';
+    // Convert to string and remove any non-digit characters
+    String cleanNumber = phoneNumber.toString().trim().replaceAll(RegExp(r'[^0-9]'), '');
+    
+    // Ensure number is 8 digits (pad with zeros if needed)
+    cleanNumber = cleanNumber.padLeft(8, '0');
+    
+    // If number already has 973 prefix, return as is
+    if (cleanNumber.startsWith('973')) return cleanNumber;
+    
+    // Add 973 prefix if not present
+    return '973$cleanNumber';
+  }
+
   // App Info
   static const String appName = 'Glam Connect';
   static const String appVersion = '1.0.0';

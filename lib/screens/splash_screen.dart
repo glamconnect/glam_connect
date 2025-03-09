@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:glam_connect/widgets/common/app_logo.dart';
 
+import '../utils/app_colors.dart';
+
 class SplashScreen extends StatelessWidget {
   const SplashScreen({Key? key}) : super(key: key);
 
@@ -12,7 +14,7 @@ class SplashScreen extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.green, Colors.greenAccent],
+            colors: [AppColor.primary, Color.fromARGB(255, 202, 43, 160)],
           ),
         ),
         child: Center(

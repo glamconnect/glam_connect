@@ -23,15 +23,15 @@ class AuthBackground extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-            child: Container(
-              color: Colors.black.withOpacity(0.6),
-            ),
+            child: Container(color: Colors.black.withOpacity(0.6)),
           ),
           // Scrollable content
           SafeArea(
             child: SingleChildScrollView(
               child: SizedBox(
-                height: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top,
+                height:
+                    MediaQuery.of(context).size.height -
+                    MediaQuery.of(context).padding.top,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: child,

@@ -10,30 +10,27 @@ class AppTheme {
   static const Color errorColor = Color(0xFFE53935);
   static const Color backgroundColor = Color(0xFFF5F5F5);
   static const Color cardColor = Colors.white;
-  
+
   // Text Styles
   static const TextStyle headingStyle = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.bold,
     color: textColor,
   );
-  
+
   static const TextStyle subheadingStyle = TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w600,
     color: textColor,
   );
-  
-  static const TextStyle bodyStyle = TextStyle(
-    fontSize: 16,
-    color: textColor,
-  );
-  
+
+  static const TextStyle bodyStyle = TextStyle(fontSize: 16, color: textColor);
+
   static const TextStyle captionStyle = TextStyle(
     fontSize: 14,
     color: secondaryTextColor,
   );
-  
+
   // Theme Data
   static ThemeData lightTheme = ThemeData(
     primaryColor: primaryColor,
@@ -61,9 +58,7 @@ class AppTheme {
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(

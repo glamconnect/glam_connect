@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../utils/app_colors.dart';
+
 class AuthFooter extends StatelessWidget {
   final String questionText;
   final String linkText;
@@ -31,7 +33,7 @@ class AuthFooter extends StatelessWidget {
             child: Text(
               linkText,
               style: const TextStyle(
-                color: Colors.green,
+                color: AppColor.primary,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),

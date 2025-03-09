@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:glam_connect/models/user_model.dart';
 import 'package:glam_connect/providers/main_provider.dart';
+import 'package:glam_connect/screens/admin/analytics_screen.dart';
 import 'package:glam_connect/screens/admin/salon_list_screen.dart';
-import 'package:glam_connect/screens/auth/login_screen.dart';
-import 'package:glam_connect/utils/app_theme.dart';
+import 'package:glam_connect/screens/admin/service_categories_screen.dart';
+import 'package:glam_connect/screens/profile/profile_screen.dart';
+
+import '../features/auth/auth_page.dart';
+import '../utils/app_colors.dart';
 
 class MainNavigationPage extends ConsumerStatefulWidget {
   const MainNavigationPage({super.key});
-  
+
   @override
   ConsumerState<MainNavigationPage> createState() => _MainNavigationPageState();
 }
@@ -36,37 +40,43 @@ class _MainNavigationPageState extends ConsumerState<MainNavigationPage> {
         onTap: () {
           FocusManager.instance.primaryFocus?.unfocus();
         },
-        child: mainProviderData.isLoading
-            ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor))
-            : Stack(
-                children: [
-                  _buildBody(mainProviderData, user),
-                  if (showNavBar)
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: _buildNavBar(user),
-                    ),
-                ],
-              ),
+        child:
+            mainProviderData.isLoading
+                ? const Center(
+                  child: CircularProgressIndicator(color: AppColor.primary),
+                )
+                : Stack(
+                  children: [
+                    _buildBody(mainProviderData, user),
+                    if (showNavBar)
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: _buildNavBar(user),
+                      ),
+                  ],
+                ),
       ),
     );
   }
 
   Widget _buildBody(MainProviderState mainProviderData, UserModel? user) {
     if (!mainProviderData.isUserLoggedIn || user == null) {
-      return const LoginScreen();
+      return const AuthPage();
     } else {
       // Return the appropriate page based on user role and selected index
-      return _getPageForUserRole(user.role, mainProviderData.selectedMainPageIndex);
+      return _getPageForUserRole(
+        user.role,
+        mainProviderData.selectedMainPageIndex,
+      );
     }
   }
 
   Widget _buildNavBar(UserModel? user) {
     if (user == null) return const SizedBox();
-    
+
     // Different navigation bars based on user role
     switch (user.role) {
-      case UserRole.normalUser:
+      case UserRole.customer:
         return _buildUserNavBar();
       case UserRole.employee:
         return _buildEmployeeNavBar();
@@ -82,31 +92,40 @@ class _MainNavigationPageState extends ConsumerState<MainNavigationPage> {
   // Navigation bar for normal users
   Widget _buildUserNavBar() {
     final mainProviderData = ref.watch(mainProvider);
-    
-    return Container(
-      width: double.infinity,
-      height: 80,
-      decoration: BoxDecoration(
-        color: AppTheme.primaryColor,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(25),
-          topRight: Radius.circular(25),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
+
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Container(
+        width: double.infinity,
+        height: 80,
+        decoration: BoxDecoration(
+          color: AppColor.primary,
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(40),
+            bottomRight: Radius.circular(40),
+            topLeft: Radius.circular(40),
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(Icons.calendar_today, 0, mainProviderData, 'Calendar'),
-          _buildNavItem(Icons.home, 1, mainProviderData, 'Home'),
-          _buildNavItem(Icons.person, 2, mainProviderData, 'Profile'),
-        ],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildNavItem(
+              Icons.calendar_today,
+              0,
+              mainProviderData,
+              'Calendar',
+            ),
+            _buildNavItem(Icons.home, 1, mainProviderData, 'Home'),
+            _buildNavItem(Icons.person, 2, mainProviderData, 'Profile'),
+          ],
+        ),
       ),
     );
   }
@@ -114,30 +133,39 @@ class _MainNavigationPageState extends ConsumerState<MainNavigationPage> {
   // Navigation bar for employees
   Widget _buildEmployeeNavBar() {
     final mainProviderData = ref.watch(mainProvider);
-    
-    return Container(
-      width: double.infinity,
-      height: 80,
-      decoration: BoxDecoration(
-        color: AppTheme.primaryColor,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(25),
-          topRight: Radius.circular(25),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
+
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Container(
+        width: double.infinity,
+        height: 80,
+        decoration: BoxDecoration(
+          color: AppColor.primary,
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(40),
+            bottomRight: Radius.circular(40),
+            topLeft: Radius.circular(40),
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(Icons.calendar_today, 0, mainProviderData, 'Schedule'),
-          _buildNavItem(Icons.person, 1, mainProviderData, 'Profile'),
-        ],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildNavItem(
+              Icons.calendar_today,
+              0,
+              mainProviderData,
+              'Schedule',
+            ),
+            _buildNavItem(Icons.person, 1, mainProviderData, 'Profile'),
+          ],
+        ),
       ),
     );
   }
@@ -145,32 +173,41 @@ class _MainNavigationPageState extends ConsumerState<MainNavigationPage> {
   // Navigation bar for salon admins
   Widget _buildSalonAdminNavBar() {
     final mainProviderData = ref.watch(mainProvider);
-    
-    return Container(
-      width: double.infinity,
-      height: 80,
-      decoration: BoxDecoration(
-        color: AppTheme.primaryColor,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(25),
-          topRight: Radius.circular(25),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
+
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Container(
+        width: double.infinity,
+        height: 80,
+        decoration: BoxDecoration(
+          color: AppColor.primary,
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(40),
+            bottomRight: Radius.circular(40),
+            topLeft: Radius.circular(40),
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(Icons.calendar_today, 0, mainProviderData, 'Calendar'),
-          _buildNavItem(Icons.people, 1, mainProviderData, 'Staff'),
-          _buildNavItem(Icons.work, 2, mainProviderData, 'Services'),
-          _buildNavItem(Icons.person, 3, mainProviderData, 'Profile'),
-        ],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildNavItem(
+              Icons.calendar_today,
+              0,
+              mainProviderData,
+              'Calendar',
+            ),
+            _buildNavItem(Icons.people, 1, mainProviderData, 'Staff'),
+            _buildNavItem(Icons.work, 2, mainProviderData, 'Services'),
+            _buildNavItem(Icons.person, 3, mainProviderData, 'Profile'),
+          ],
+        ),
       ),
     );
   }
@@ -178,53 +215,59 @@ class _MainNavigationPageState extends ConsumerState<MainNavigationPage> {
   // Navigation bar for super admins
   Widget _buildSuperAdminNavBar() {
     final mainProviderData = ref.watch(mainProvider);
-    
-    return Container(
-      width: double.infinity,
-      height: 80,
-      decoration: BoxDecoration(
-        color: AppTheme.primaryColor,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(25),
-          topRight: Radius.circular(25),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
+
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Container(
+        width: double.infinity,
+        height: 80,
+        decoration: BoxDecoration(
+          color: AppColor.primary,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(40),
+            bottomLeft: Radius.circular(40),
+            bottomRight: Radius.circular(40),
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(Icons.store, 0, mainProviderData, 'Salons'),
-          _buildNavItem(Icons.bar_chart, 1, mainProviderData, 'Analytics'),
-          _buildNavItem(Icons.person, 2, mainProviderData, 'Profile'),
-        ],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildNavItem(Icons.store, 0, mainProviderData, 'Salons'),
+            _buildNavItem(Icons.bar_chart, 1, mainProviderData, 'Analytics'),
+            _buildNavItem(Icons.category, 2, mainProviderData, 'Categories'),
+            _buildNavItem(Icons.person, 3, mainProviderData, 'Profile'),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildNavItem(IconData icon, int index, MainProviderState mainProviderData, String label) {
+  Widget _buildNavItem(
+    IconData icon,
+    int index,
+    MainProviderState mainProviderData,
+    String label,
+  ) {
     final isSelected = mainProviderData.selectedMainPageIndex == index;
-    
+
     return GestureDetector(
       onTap: () => ref.read(mainProvider.notifier).setSelectedPage(index),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            color: isSelected ? Colors.black : Colors.white,
-            size: 30,
-          ),
+          Icon(icon, color: isSelected ? Colors.white : Colors.black, size: 30),
           const SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(
-              color: isSelected ? Colors.black : Colors.white,
+              color: isSelected ? Colors.white : Colors.black,
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
@@ -238,38 +281,57 @@ class _MainNavigationPageState extends ConsumerState<MainNavigationPage> {
   Widget _getPageForUserRole(UserRole role, int index) {
     // Placeholder screens - you'll need to implement these
     switch (role) {
-      case UserRole.normalUser:
+      case UserRole.customer:
         switch (index) {
-          case 0: return const Center(child: Text('User Calendar Page'));
-          case 1: return const Center(child: Text('User Home Page'));
-          case 2: return const Center(child: Text('User Profile Page'));
-          default: return const Center(child: Text('User Home Page'));
+          case 0:
+            return const Center(child: Text('Calendar Coming Soon'));
+          case 1:
+            return const Center(child: Text('Home Coming Soon'));
+          case 2:
+            return const ProfileScreen();
+          default:
+            return const Center(child: Text('Home Coming Soon'));
         }
-      
+
       case UserRole.employee:
         switch (index) {
-          case 0: return const Center(child: Text('Employee Schedule Page'));
-          case 1: return const Center(child: Text('Employee Profile Page'));
-          default: return const Center(child: Text('Employee Schedule Page'));
+          case 0:
+            return const Center(child: Text('Schedule Coming Soon'));
+          case 1:
+            return const ProfileScreen();
+          default:
+            return const Center(child: Text('Schedule Coming Soon'));
         }
-      
+
       case UserRole.salonAdmin:
         switch (index) {
-          case 0: return const Center(child: Text('Salon Admin Calendar Page'));
-          case 1: return const Center(child: Text('Salon Admin Staff Page'));
-          case 2: return const Center(child: Text('Salon Admin Services Page'));
-          case 3: return const Center(child: Text('Salon Admin Profile Page'));
-          default: return const Center(child: Text('Salon Admin Calendar Page'));
+          case 0:
+            return const Center(child: Text('Calendar Coming Soon'));
+          case 1:
+            return const Center(child: Text('Staff Coming Soon'));
+          case 2:
+            return const Center(child: Text('Services Coming Soon'));
+            // @main_navigation.dart#L311 I need to make services manager page for the salon admin, to add service photo, name, price and discription and status, if active or not, and who is the creator of the service, to link the service to the salon this should create service 
+          case 3:
+            return const ProfileScreen();
+          default:
+            return const Center(child: Text('Calendar Coming Soon'));
         }
-      
+
       case UserRole.superAdmin:
         switch (index) {
-          case 0: return const SalonListScreen();
-          case 1: return const Center(child: Text('Super Admin Analytics Page'));
-          case 2: return const Center(child: Text('Super Admin Profile Page'));
-          default: return const SalonListScreen();
+          case 0:
+            return const SalonListScreen();
+          case 1:
+            return const AnalyticsScreen();
+          case 2:
+            return const ServiceCategoriesScreen();
+          case 3:
+            return const ProfileScreen();
+          default:
+            return const SalonListScreen();
         }
-      
+
       default:
         return const Center(child: Text('Home Page'));
     }

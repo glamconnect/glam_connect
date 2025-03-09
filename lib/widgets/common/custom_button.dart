@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:glam_connect/utils/app_colors.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -22,7 +23,7 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final buttonColor = color ?? Colors.green;
+    final buttonColor = color ?? AppColor.primary;
     
     return SizedBox(
       width: width,

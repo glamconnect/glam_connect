@@ -13,9 +13,11 @@ final salonServiceProvider = Provider<SalonService>((ref) {
 class SalonService {
   final Ref _ref;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final AuthService _authService = AuthService();
+  late final AuthService _authService;
 
-  SalonService(this._ref);
+  SalonService(this._ref) {
+    _authService = _ref.read(authServiceProvider);
+  }
 
   // Get all salons
   Future<List<SalonModel>> getAllSalons() async {
@@ -64,13 +66,21 @@ class SalonService {
   Future<SalonModel?> createSalon({
     required String name,
     required String phoneNumber,
+    required String adminName,
+    required String adminEmail,
     String? profileImageBase64,
   }) async {
     try {
       final String salonId = const Uuid().v4();
       final DateTime now = DateTime.now();
 
-      // Create salon document
+      // First check if admin user already exists
+      final existingUser = await _authService.getUserByPhone(phoneNumber);
+      if (existingUser != null) {
+        throw Exception('A user with this phone number already exists');
+      }
+
+      // Create salon document first
       final salonData = {
         'name': name,
         'phoneNumber': phoneNumber,
@@ -82,37 +92,35 @@ class SalonService {
       await _firestore.collection(Constants.salonsCollection).doc(salonId).set(salonData);
 
       // Create salon admin user
-      final existingUser = await _authService.getUserByPhone(phoneNumber);
-      String adminId;
+      final (adminUser, error) = await _authService.registerUser(
+        name: adminName,
+        phoneNumber: phoneNumber,
+        email: adminEmail,
+        role: UserRole.salonAdmin,
+        salonId: salonId,
+      );
 
-      if (existingUser != null) {
-        // Update existing user to salon admin role
-        await _authService.updateUserRole(
-          userId: existingUser.id,
-          newRole: UserRole.salonAdmin,
-          salonId: salonId,
-        );
-        adminId = existingUser.id;
-      } else {
-        // Create new user with salon admin role
-        final newUser = await _authService.registerUser(
-          name: 'Admin for $name',
-          phoneNumber: phoneNumber,
-          role: UserRole.salonAdmin,
-          salonId: salonId,
-        );
-        adminId = newUser?.id ?? '';
+      if (error != null) {
+        // Rollback salon creation
+        await _firestore.collection(Constants.salonsCollection).doc(salonId).delete();
+        throw Exception(error);
+      }
+
+      if (adminUser == null) {
+        // Rollback salon creation
+        await _firestore.collection(Constants.salonsCollection).doc(salonId).delete();
+        throw Exception('Failed to create admin user');
       }
 
       // Update salon with admin ID
-      await _firestore.collection(Constants.salonsCollection).doc(salonId).update({'adminId': adminId});
+      await _firestore.collection(Constants.salonsCollection).doc(salonId).update({'adminId': adminUser.id});
 
       return SalonModel(
         id: salonId,
         name: name,
         phoneNumber: phoneNumber,
         profileImageBase64: profileImageBase64,
-        adminId: adminId,
+        adminId: adminUser.id,
         createdAt: now,
         updatedAt: now,
       );

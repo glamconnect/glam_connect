@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:glam_connect/utils/app_colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:glam_connect/models/salon_model.dart';
 import 'package:glam_connect/services/salon_service.dart';
 import 'package:glam_connect/utils/app_theme.dart';
 import 'package:glam_connect/widgets/common/custom_button.dart';
+import 'package:glam_connect/widgets/common/custom_text_field.dart';
 
 class SalonListScreen extends ConsumerStatefulWidget {
   const SalonListScreen({Key? key}) : super(key: key);
@@ -47,17 +49,21 @@ class _SalonListScreenState extends ConsumerState<SalonListScreen> {
           'Salons Manager',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppColor.primary,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add, color: Colors.white),
+            onPressed: _showAddSalonDialog,
+          ),
+        ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor))
-          : _buildSalonList(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddSalonDialog,
-        backgroundColor: AppTheme.primaryColor,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+      body:
+          _isLoading
+              ? const Center(
+                child: CircularProgressIndicator(color: AppColor.primary),
+              )
+              : _buildSalonList(),
     );
   }
 
@@ -90,22 +96,19 @@ class _SalonListScreenState extends ConsumerState<SalonListScreen> {
         contentPadding: const EdgeInsets.all(16),
         leading: CircleAvatar(
           radius: 30,
-          backgroundColor: AppTheme.primaryColor.withOpacity(0.2),
-          child: salon.profileImageBase64 != null
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(30),
-                  child: Image.memory(
-                    _decodeBase64Image(salon.profileImageBase64!),
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                  ),
-                )
-              : Icon(
-                  Icons.store,
-                  color: AppTheme.primaryColor,
-                  size: 30,
-                ),
+          backgroundColor: AppColor.primary.withOpacity(0.2),
+          child:
+              salon.profileImageBase64 != null
+                  ? ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Image.memory(
+                      _decodeBase64Image(salon.profileImageBase64!),
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                  : Icon(Icons.store, color: AppColor.primary, size: 30),
         ),
         title: Text(
           salon.name,
@@ -120,7 +123,7 @@ class _SalonListScreenState extends ConsumerState<SalonListScreen> {
           ],
         ),
         trailing: IconButton(
-          icon: const Icon(Icons.edit, color: AppTheme.primaryColor),
+          icon: const Icon(Icons.edit, color: AppColor.primary),
           onPressed: () => _showEditSalonDialog(salon),
         ),
         onTap: () {
@@ -134,30 +137,34 @@ class _SalonListScreenState extends ConsumerState<SalonListScreen> {
   void _showAddSalonDialog() {
     showDialog(
       context: context,
-      builder: (context) => _CreateSalonDialog(
-        onSalonCreated: (salon) {
-          setState(() {
-            _salons.add(salon);
-          });
-        },
-      ),
+      builder:
+          (context) => _CreateSalonDialog(
+            onSalonCreated: (salon) {
+              setState(() {
+                _salons.add(salon);
+              });
+            },
+          ),
     );
   }
 
   void _showEditSalonDialog(SalonModel salon) {
     showDialog(
       context: context,
-      builder: (context) => _EditSalonDialog(
-        salon: salon,
-        onSalonUpdated: (updatedSalon) {
-          setState(() {
-            final index = _salons.indexWhere((s) => s.id == updatedSalon.id);
-            if (index != -1) {
-              _salons[index] = updatedSalon;
-            }
-          });
-        },
-      ),
+      builder:
+          (context) => _EditSalonDialog(
+            salon: salon,
+            onSalonUpdated: (updatedSalon) {
+              setState(() {
+                final index = _salons.indexWhere(
+                  (s) => s.id == updatedSalon.id,
+                );
+                if (index != -1) {
+                  _salons[index] = updatedSalon;
+                }
+              });
+            },
+          ),
     );
   }
 
@@ -179,6 +186,8 @@ class _CreateSalonDialogState extends ConsumerState<_CreateSalonDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _adminNameController = TextEditingController();
+  final _adminEmailController = TextEditingController();
   String? _profileImageBase64;
   bool _isLoading = false;
 
@@ -186,6 +195,8 @@ class _CreateSalonDialogState extends ConsumerState<_CreateSalonDialog> {
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
+    _adminNameController.dispose();
+    _adminEmailController.dispose();
     super.dispose();
   }
 
@@ -213,23 +224,36 @@ class _CreateSalonDialogState extends ConsumerState<_CreateSalonDialog> {
       _isLoading = true;
     });
 
-    final salon = await ref.read(salonServiceProvider).createSalon(
-          name: _nameController.text.trim(),
-          phoneNumber: _phoneController.text.trim(),
-          profileImageBase64: _profileImageBase64,
-        );
+    try {
+      // Create the salon with admin details
+      final salon = await ref
+          .read(salonServiceProvider)
+          .createSalon(
+            name: _nameController.text.trim(),
+            phoneNumber: _phoneController.text.trim(),
+            adminName: _adminNameController.text.trim(),
+            adminEmail: _adminEmailController.text.trim(),
+            profileImageBase64: _profileImageBase64,
+          );
 
-    setState(() {
-      _isLoading = false;
-    });
+      if (salon == null) {
+        throw Exception('Failed to create salon');
+      }
 
-    if (salon != null && mounted) {
-      widget.onSalonCreated(salon);
-      Navigator.of(context).pop();
-    } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to create salon. Please try again.')),
-      );
+      if (mounted) {
+        widget.onSalonCreated(salon);
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -247,55 +271,61 @@ class _CreateSalonDialogState extends ConsumerState<_CreateSalonDialog> {
                 onTap: _pickImage,
                 child: CircleAvatar(
                   radius: 50,
-                  backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-                  child: _profileImageBase64 != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(50),
-                          child: Image.memory(
-                            base64Decode(_profileImageBase64!),
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
+                  backgroundColor: AppColor.primary.withOpacity(0.1),
+                  child:
+                      _profileImageBase64 != null
+                          ? ClipRRect(
+                            borderRadius: BorderRadius.circular(50),
+                            child: Image.memory(
+                              base64Decode(_profileImageBase64!),
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                          : const Icon(
+                            Icons.add_a_photo,
+                            color: AppColor.primary,
+                            size: 40,
                           ),
-                        )
-                      : const Icon(
-                          Icons.add_a_photo,
-                          color: AppTheme.primaryColor,
-                          size: 40,
-                        ),
                 ),
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              CustomTextField(
+                hintText: 'Salon Name',
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Salon Name',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter salon name';
-                  }
-                  return null;
-                },
+                validator:
+                    (value) =>
+                        value?.isEmpty ?? true ? 'Enter salon name' : null,
               ),
-              const SizedBox(height: 16),
-              TextFormField(
+              CustomTextField(
+                hintText: 'Phone Number (8 digits, we will add 973)',
                 controller: _phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number',
-                  border: OutlineInputBorder(),
-                ),
                 keyboardType: TextInputType.phone,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter phone number';
+                    return 'Enter phone number';
                   }
-                  if (value.length < 8) {
-                    return 'Please enter a valid phone number';
+                  final cleanNumber = value.replaceAll(RegExp(r'[^0-9]'), '');
+                  if (cleanNumber.length != 8) {
+                    return 'Phone number must be 8 digits';
                   }
                   return null;
                 },
+              ),
+              CustomTextField(
+                hintText: 'Admin Name',
+                controller: _adminNameController,
+                validator:
+                    (value) =>
+                        value?.isEmpty ?? true ? 'Enter admin name' : null,
+              ),
+              CustomTextField(
+                hintText: 'Admin Email',
+                controller: _adminEmailController,
+                validator:
+                    (value) =>
+                        value?.isEmpty ?? true ? 'Enter admin email' : null,
               ),
             ],
           ),
@@ -332,6 +362,8 @@ class _EditSalonDialogState extends ConsumerState<_EditSalonDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _adminNameController = TextEditingController();
+  final _adminEmailController = TextEditingController();
   String? _profileImageBase64;
   bool _isLoading = false;
 
@@ -374,7 +406,9 @@ class _EditSalonDialogState extends ConsumerState<_EditSalonDialog> {
       _isLoading = true;
     });
 
-    final salon = await ref.read(salonServiceProvider).updateSalon(
+    final salon = await ref
+        .read(salonServiceProvider)
+        .updateSalon(
           salonId: widget.salon.id,
           name: _nameController.text.trim(),
           phoneNumber: _phoneController.text.trim(),
@@ -390,7 +424,9 @@ class _EditSalonDialogState extends ConsumerState<_EditSalonDialog> {
       Navigator.of(context).pop();
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update salon. Please try again.')),
+        const SnackBar(
+          content: Text('Failed to update salon. Please try again.'),
+        ),
       );
     }
   }
@@ -409,55 +445,61 @@ class _EditSalonDialogState extends ConsumerState<_EditSalonDialog> {
                 onTap: _pickImage,
                 child: CircleAvatar(
                   radius: 50,
-                  backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-                  child: _profileImageBase64 != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(50),
-                          child: Image.memory(
-                            base64Decode(_profileImageBase64!),
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
+                  backgroundColor: AppColor.primary.withOpacity(0.1),
+                  child:
+                      _profileImageBase64 != null
+                          ? ClipRRect(
+                            borderRadius: BorderRadius.circular(50),
+                            child: Image.memory(
+                              base64Decode(_profileImageBase64!),
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                          : const Icon(
+                            Icons.add_a_photo,
+                            color: AppColor.primary,
+                            size: 40,
                           ),
-                        )
-                      : const Icon(
-                          Icons.add_a_photo,
-                          color: AppTheme.primaryColor,
-                          size: 40,
-                        ),
                 ),
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              CustomTextField(
+                hintText: 'Salon Name',
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Salon Name',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter salon name';
-                  }
-                  return null;
-                },
+                validator:
+                    (value) =>
+                        value?.isEmpty ?? true ? 'Enter salon name' : null,
               ),
-              const SizedBox(height: 16),
-              TextFormField(
+              CustomTextField(
+                hintText: 'Phone Number (8 digits, we will add 973)',
                 controller: _phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number',
-                  border: OutlineInputBorder(),
-                ),
                 keyboardType: TextInputType.phone,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter phone number';
+                    return 'Enter phone number';
                   }
-                  if (value.length < 8) {
-                    return 'Please enter a valid phone number';
+                  final cleanNumber = value.replaceAll(RegExp(r'[^0-9]'), '');
+                  if (cleanNumber.length != 8) {
+                    return 'Phone number must be 8 digits';
                   }
                   return null;
                 },
+              ),
+              CustomTextField(
+                hintText: 'Admin Name',
+                controller: _adminNameController,
+                validator:
+                    (value) =>
+                        value?.isEmpty ?? true ? 'Enter admin name' : null,
+              ),
+              CustomTextField(
+                hintText: 'Admin Email',
+                controller: _adminEmailController,
+                validator:
+                    (value) =>
+                        value?.isEmpty ?? true ? 'Enter admin email' : null,
               ),
             ],
           ),

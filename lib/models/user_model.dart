@@ -1,5 +1,5 @@
 enum UserRole {
-  normalUser,
+  customer,
   superAdmin,
   salonAdmin,
   employee,
@@ -16,6 +16,7 @@ class UserModel {
   final DateTime createdAt;
   final DateTime updatedAt;
   final String? salonId; // For salon admins and employees
+  final String? fcmToken; // Firebase Cloud Messaging token
 
   UserModel({
     required this.id,
@@ -28,6 +29,7 @@ class UserModel {
     required this.createdAt,
     required this.updatedAt,
     this.salonId,
+    this.fcmToken,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -39,12 +41,13 @@ class UserModel {
       city: json['city'] as String?,
       role: UserRole.values.firstWhere(
         (e) => e.toString() == 'UserRole.${json['role']}',
-        orElse: () => UserRole.normalUser,
+        orElse: () => UserRole.customer,
       ),
       profileImageUrl: json['profileImageUrl'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
       salonId: json['salonId'] as String?,
+      fcmToken: json['fcmToken'] as String?,
     );
   }
 
@@ -60,6 +63,7 @@ class UserModel {
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
       'salonId': salonId,
+      'fcmToken': fcmToken,
     };
   }
 
@@ -74,6 +78,7 @@ class UserModel {
     DateTime? createdAt,
     DateTime? updatedAt,
     String? salonId,
+    String? fcmToken,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -86,6 +91,7 @@ class UserModel {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       salonId: salonId ?? this.salonId,
+      fcmToken: fcmToken ?? this.fcmToken,
     );
   }
 }
