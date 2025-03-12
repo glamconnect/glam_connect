@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:glam_connect/models/user_model.dart';
 import 'package:glam_connect/providers/main_provider.dart';
 import 'package:glam_connect/screens/admin/analytics_screen.dart';
+import 'package:glam_connect/screens/salon/staff_schedule_screen.dart';
+import 'package:glam_connect/screens/salon/staff_list_screen.dart';
 import 'package:glam_connect/screens/admin/salon_list_screen.dart';
 import 'package:glam_connect/screens/admin/service_categories_screen.dart';
 import 'package:glam_connect/screens/profile/profile_screen.dart';
+import 'package:glam_connect/screens/salon/service_manager_screen.dart';
 
 import '../features/auth/auth_page.dart';
 import '../utils/app_colors.dart';
@@ -67,6 +70,7 @@ class _MainNavigationPageState extends ConsumerState<MainNavigationPage> {
       return _getPageForUserRole(
         user.role,
         mainProviderData.selectedMainPageIndex,
+        user,
       );
     }
   }
@@ -278,7 +282,7 @@ class _MainNavigationPageState extends ConsumerState<MainNavigationPage> {
   }
 
   // Return the appropriate page based on user role and index
-  Widget _getPageForUserRole(UserRole role, int index) {
+  Widget _getPageForUserRole(UserRole role, int index, UserModel? user) {
     // Placeholder screens - you'll need to implement these
     switch (role) {
       case UserRole.customer:
@@ -306,12 +310,19 @@ class _MainNavigationPageState extends ConsumerState<MainNavigationPage> {
       case UserRole.salonAdmin:
         switch (index) {
           case 0:
-            return const Center(child: Text('Calendar Coming Soon'));
+            final salonId = user?.salonId;
+            if (salonId == null) {
+              return const Center(child: Text('Salon ID not found'));
+            }
+            return StaffScheduleScreen(salonId: salonId);
           case 1:
-            return const Center(child: Text('Staff Coming Soon'));
+            final salonId = user?.salonId;
+            if (salonId == null) {
+              return const Center(child: Text('Salon ID not found'));
+            }
+            return StaffListScreen(salonId: salonId);
           case 2:
-            return const Center(child: Text('Services Coming Soon'));
-            // @main_navigation.dart#L311 I need to make services manager page for the salon admin, to add service photo, name, price and discription and status, if active or not, and who is the creator of the service, to link the service to the salon this should create service 
+            return const ServiceManagerScreen();
           case 3:
             return const ProfileScreen();
           default:

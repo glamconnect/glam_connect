@@ -19,17 +19,39 @@ class ServiceCategoryNotifier extends StateNotifier<AsyncValue<List<ServiceCateg
 
   Future<void> loadCategories() async {
     try {
+      state = const AsyncValue.loading();
+      
+      // Get all categories
       final snapshot = await _firestore
-          .collection(Constants.servicesCollection)
-          .orderBy('createdAt', descending: true)
+          .collection(Constants.categoriesCollection)
+          .orderBy('name')
           .get();
 
-      final categories = snapshot.docs
+      // Process and filter categories in memory
+      final allDocs = snapshot.docs;
+      
+      // First, get main categories (no parentCategoryId)
+      final mainCategories = allDocs
+          .where((doc) => 
+              doc.data()['parentCategoryId'] == null && 
+              (doc.data()['isActive'] ?? false))
           .map((doc) => ServiceCategory.fromMap({...doc.data(), 'id': doc.id}))
           .toList();
 
-      state = AsyncValue.data(categories);
+      // Then get subcategories of active main categories
+      final mainCategoryIds = mainCategories.map((c) => c.id).toSet();
+      final subCategories = allDocs
+          .where((doc) => 
+              mainCategoryIds.contains(doc.data()['parentCategoryId']) && 
+              (doc.data()['isActive'] ?? false))
+          .map((doc) => ServiceCategory.fromMap({...doc.data(), 'id': doc.id}))
+          .toList();
+
+      // Combine both lists
+      final allCategories = [...mainCategories, ...subCategories];
+      state = AsyncValue.data(allCategories);
     } catch (error, stackTrace) {
+      print('Error loading categories: $error');
       state = AsyncValue.error(error, stackTrace);
     }
   }
@@ -55,7 +77,7 @@ class ServiceCategoryNotifier extends StateNotifier<AsyncValue<List<ServiceCateg
         base64Image = await processImage(imageFile);
       }
 
-      final docRef = await _firestore.collection(Constants.servicesCollection).add({
+      final docRef = await _firestore.collection(Constants.categoriesCollection).add({
         'name': name,
         'base64Image': base64Image,
         'isActive': isActive,
@@ -93,7 +115,7 @@ class ServiceCategoryNotifier extends StateNotifier<AsyncValue<List<ServiceCateg
       }
 
       await _firestore
-          .collection(Constants.servicesCollection)
+          .collection(Constants.categoriesCollection)
           .doc(id)
           .update(updateData);
 
@@ -106,7 +128,7 @@ class ServiceCategoryNotifier extends StateNotifier<AsyncValue<List<ServiceCateg
 
   Future<bool> deleteCategory(String id) async {
     try {
-      await _firestore.collection(Constants.servicesCollection).doc(id).delete();
+      await _firestore.collection(Constants.categoriesCollection).doc(id).delete();
       await loadCategories();
       return true;
     } catch (e) {

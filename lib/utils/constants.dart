@@ -5,14 +5,17 @@ class Constants {
   static String formatPhoneNumber(dynamic phoneNumber) {
     if (phoneNumber == null) return '';
     // Convert to string and remove any non-digit characters
-    String cleanNumber = phoneNumber.toString().trim().replaceAll(RegExp(r'[^0-9]'), '');
-    
+    String cleanNumber = phoneNumber.toString().trim().replaceAll(
+      RegExp(r'[^0-9]'),
+      '',
+    );
+
     // Ensure number is 8 digits (pad with zeros if needed)
     cleanNumber = cleanNumber.padLeft(8, '0');
-    
+
     // If number already has 973 prefix, return as is
     if (cleanNumber.startsWith('973')) return cleanNumber;
-    
+
     // Add 973 prefix if not present
     return '973$cleanNumber';
   }
@@ -24,6 +27,7 @@ class Constants {
   // Firestore Collections
   static const String usersCollection = 'users';
   static const String salonsCollection = 'salons';
+  static const String categoriesCollection = 'categories';
   static const String servicesCollection = 'services';
   static const String appointmentsCollection = 'appointments';
   static const String reviewsCollection = 'reviews';
