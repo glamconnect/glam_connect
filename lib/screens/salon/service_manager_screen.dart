@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:glam_connect/models/service_model.dart';
@@ -344,47 +345,92 @@ class _ServiceManagerScreenState extends ConsumerState<ServiceManagerScreen> {
   }
 
   Widget _buildServiceCard(ServiceModel service) {
-    return Card(
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      child: ListTile(
-        leading:
-        service.base64Image != null
-            ? ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: Image(
-                image: ImageUtils.getImageProvider(service.base64Image),
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
+      child: Column(
+        children: [
+          service.base64Image != null
+              ? ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Image(
+                  image: ImageUtils.getImageProvider(service.base64Image),
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                ),
+              )
+              : const Icon(Icons.spa),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  LimitedBox(
+                    maxWidth: MediaQuery.of(context).size.width * 0.6,
+                    child: AutoSizeText(
+                      service.name,
+                      maxLines: 5,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  LimitedBox(
+                    maxWidth: MediaQuery.of(context).size.width * 0.6,
+                    child: AutoSizeText(
+                      service.description,
+                      maxLines: 5,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  LimitedBox(
+                    maxWidth: MediaQuery.of(context).size.width * 0.6,
+                    child: AutoSizeText(
+                      'Price: \BHD${service.price.toStringAsFixed(2)}',
+                    ),
+                  ),
+                ],
               ),
-            )
-        :
-        const Icon(Icons.spa),
-        title: Text(service.name),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(service.description),
-            Text('Price: \$${service.price.toStringAsFixed(2)}'),
-          ],
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Switch(
-              value: service.isActive,
-              onChanged: (value) => _handleEditService(service.id),
-            ),
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () => _showAddServiceDialog(service),
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () => _handleDeleteService(service.id),
-            ),
-          ],
-        ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Switch(
+                    value: service.isActive,
+                    onChanged: (value) => _handleEditService(service.id),
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () => _showAddServiceDialog(service),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => _handleDeleteService(service.id),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

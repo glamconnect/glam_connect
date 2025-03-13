@@ -28,9 +28,11 @@ class Constants {
   static const String usersCollection = 'users';
   static const String salonsCollection = 'salons';
   static const String categoriesCollection = 'categories';
-  static const String servicesCollection = 'services';
+  static const String serviceCollection = 'service';
   static const String appointmentsCollection = 'appointments';
   static const String reviewsCollection = 'reviews';
+  static const String staffCollection = 'staff';
+  static const String bookingsCollection = 'bookings';
 
   // Shared Preferences Keys
   static const String userIdKey = 'user_id';

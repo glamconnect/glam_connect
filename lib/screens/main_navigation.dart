@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:glam_connect/models/user_model.dart';
 import 'package:glam_connect/providers/main_provider.dart';
 import 'package:glam_connect/screens/admin/analytics_screen.dart';
+import 'package:glam_connect/screens/customer/appointments_screen.dart';
 import 'package:glam_connect/screens/salon/staff_schedule_screen.dart';
 import 'package:glam_connect/screens/salon/staff_list_screen.dart';
 import 'package:glam_connect/screens/admin/salon_list_screen.dart';
@@ -12,6 +13,7 @@ import 'package:glam_connect/screens/salon/service_manager_screen.dart';
 
 import '../features/auth/auth_page.dart';
 import '../utils/app_colors.dart';
+import 'home/home_screen.dart';
 
 class MainNavigationPage extends ConsumerStatefulWidget {
   const MainNavigationPage({super.key});
@@ -288,13 +290,13 @@ class _MainNavigationPageState extends ConsumerState<MainNavigationPage> {
       case UserRole.customer:
         switch (index) {
           case 0:
-            return const Center(child: Text('Calendar Coming Soon'));
+            return const AppointmentsScreen();
           case 1:
-            return const Center(child: Text('Home Coming Soon'));
+            return const HomeScreen();
           case 2:
             return const ProfileScreen();
           default:
-            return const Center(child: Text('Home Coming Soon'));
+            return const HomeScreen();
         }
 
       case UserRole.employee:

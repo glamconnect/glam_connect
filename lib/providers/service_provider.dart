@@ -5,6 +5,29 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:glam_connect/models/service_model.dart';
 import 'package:glam_connect/utils/constants.dart';
 
+final servicesByCategoryProvider = FutureProvider.family<List<ServiceModel>, String>((ref, categoryId) async {
+  final firestore = FirebaseFirestore.instance;
+  try {
+    final snapshot = await firestore
+        .collection(Constants.serviceCollection)
+        .where('categoryId', isEqualTo: categoryId)
+        .where('isActive', isEqualTo: true)
+        .get();
+
+    final services = snapshot.docs
+        .map((doc) => ServiceModel.fromJson({...doc.data(), 'id': doc.id}))
+        .toList();
+
+    // Sort services by name in memory instead
+    services.sort((a, b) => a.name.compareTo(b.name));
+
+    return services;
+  } catch (e, stackTrace) {
+    log('Error fetching services by category: $e\n$stackTrace');
+    return [];
+  }
+});
+
 final serviceProvider =
     StateNotifierProvider<ServiceNotifier, AsyncValue<List<ServiceModel>>>((
       ref,
@@ -22,7 +45,7 @@ class ServiceNotifier extends StateNotifier<AsyncValue<List<ServiceModel>>> {
       // Get all services for the salon
       final snapshot =
           await _firestore
-              .collection(Constants.servicesCollection)
+              .collection(Constants.serviceCollection)
               .where('salonId', isEqualTo: salonId)
               .get();
 
@@ -128,9 +151,7 @@ class ServiceNotifier extends StateNotifier<AsyncValue<List<ServiceModel>>> {
       }
       log('Service Data: ${serviceData.toString()}');
 
-      await _firestore
-          .collection(Constants.servicesCollection)
-          .add(serviceData);
+      await _firestore.collection(Constants.serviceCollection).add(serviceData);
 
       // Refresh the services list
       await getServicesBySalonId(salonId);
@@ -178,7 +199,7 @@ class ServiceNotifier extends StateNotifier<AsyncValue<List<ServiceModel>>> {
       }
 
       await _firestore
-          .collection(Constants.servicesCollection)
+          .collection(Constants.serviceCollection)
           .doc(id)
           .update(updateData);
 
@@ -191,10 +212,7 @@ class ServiceNotifier extends StateNotifier<AsyncValue<List<ServiceModel>>> {
 
   Future<bool> deleteService(String id, String salonId) async {
     try {
-      await _firestore
-          .collection(Constants.servicesCollection)
-          .doc(id)
-          .delete();
+      await _firestore.collection(Constants.serviceCollection).doc(id).delete();
       await getServicesBySalonId(salonId);
       return true;
     } catch (e) {
