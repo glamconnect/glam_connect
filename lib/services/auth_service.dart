@@ -246,12 +246,25 @@ class AuthService {
         );
       }
 
-      final querySnapshot =
+      // Check users collection first
+      var querySnapshot =
           await _firestore
               .collection(Constants.usersCollection)
               .where('phoneNumber', isEqualTo: phoneStr)
               .limit(1)
               .get();
+
+      // If not found in users, check staff collection
+      if (querySnapshot.docs.length == 0) {
+        querySnapshot =
+            await _firestore
+                .collection(Constants.staffCollection)
+                .where('phoneNumber', isEqualTo: phoneStr)
+                .limit(1)
+                .get();
+      }
+
+
 
       print('Query result: ${querySnapshot.docs.length} documents found');
 

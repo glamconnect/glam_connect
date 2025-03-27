@@ -18,14 +18,8 @@ import 'features/auth/auth_page.dart';
 
 // Handle background messages
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  try {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-    print('Handling a background message: ${message.messageId}');
-    print('Message data: ${message.data}');
-    print('Message notification: ${message.notification?.title}, ${message.notification?.body}');
-  } catch (e) {
-    print('Error handling background message: $e');
-  }
+  // Firebase should already be initialized by this point
+  print('Handling background message: ${message.messageId}');
 }
 
 // Global error handler
@@ -40,9 +34,9 @@ void main() async {
     print('Flutter error: ${details.exception}');
     print('Stack trace: ${details.stack}');
   };
-  
+
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Handle errors in async code
   PlatformDispatcher.instance.onError = (error, stack) {
     _handleError(error, stack);
@@ -51,7 +45,9 @@ void main() async {
 
   try {
     // Initialize Firebase with options
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   } catch (e) {
     print('Error initializing Firebase: $e');
     rethrow; // Re-throw to crash the app if Firebase fails to initialize
@@ -72,8 +68,6 @@ void main() async {
   } catch (e) {
     print('Error requesting notification permissions: $e');
   }
-
-
 
   // Set background message handler
   try {
@@ -110,11 +104,7 @@ void main() async {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.error_outline,
-                    color: Colors.red,
-                    size: 48,
-                  ),
+                  const Icon(Icons.error_outline, color: Colors.red, size: 48),
                   const SizedBox(height: 16),
                   const Text(
                     'Failed to Initialize App',
@@ -159,15 +149,16 @@ class MyApp extends ConsumerWidget {
       title: 'Glam Connect',
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
-      home: appState.isLoading
-          ? const SplashScreen()
-          : appState.isUserLoggedIn
+      home:
+          appState.isLoading
+              ? const SplashScreen()
+              : appState.isUserLoggedIn
               ? const MainNavigationPage()
               : const AuthPage(),
       routes: {
         '/auth': (context) => const AuthPage(),
         '/home': (context) => const MainNavigationPage(),
-      }
+      },
     );
   }
 }

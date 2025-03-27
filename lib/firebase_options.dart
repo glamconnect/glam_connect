@@ -27,10 +27,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -44,19 +41,22 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyC3Dr4r7KHF7XROhTD6j6PykP7qpn-3C2U',
-    appId: '1:747218037971:web:45afdc8df051c7f4ee7826',
+    apiKey: 'AIzaSyAPnYgHXdCdoJBGPSGvZb7jKIWfdn4pe-M',
+    appId: '1:747218037971:web:3c584afee46a997eee7826',
     messagingSenderId: '747218037971',
     projectId: 'glamconnect-4000e',
     authDomain: 'glamconnect-4000e.firebaseapp.com',
+    databaseURL: 'https://glamconnect-4000e-default-rtdb.firebaseio.com',
     storageBucket: 'glamconnect-4000e.firebasestorage.app',
+    measurementId: 'G-50X5VW40FS',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC3Dr4r7KHF7XROhTD6j6PykP7qpn-3C2U',
-    appId: '1:747218037971:android:45afdc8df051c7f4ee7826',
+    apiKey: 'AIzaSyBqrPxuImhCjABF_dARY8lAlWVnePr-Jc8',
+    appId: '1:747218037971:android:164cd75698a109a8ee7826',
     messagingSenderId: '747218037971',
     projectId: 'glamconnect-4000e',
+    databaseURL: 'https://glamconnect-4000e-default-rtdb.firebaseio.com',
     storageBucket: 'glamconnect-4000e.firebasestorage.app',
   );
 
@@ -65,6 +65,7 @@ class DefaultFirebaseOptions {
     appId: '1:747218037971:ios:45afdc8df051c7f4ee7826',
     messagingSenderId: '747218037971',
     projectId: 'glamconnect-4000e',
+    databaseURL: 'https://glamconnect-4000e-default-rtdb.firebaseio.com',
     storageBucket: 'glamconnect-4000e.firebasestorage.app',
     iosBundleId: 'com.glamconnect.glamConnect',
   );
@@ -74,7 +75,20 @@ class DefaultFirebaseOptions {
     appId: '1:747218037971:ios:45afdc8df051c7f4ee7826',
     messagingSenderId: '747218037971',
     projectId: 'glamconnect-4000e',
+    databaseURL: 'https://glamconnect-4000e-default-rtdb.firebaseio.com',
     storageBucket: 'glamconnect-4000e.firebasestorage.app',
     iosBundleId: 'com.glamconnect.glamConnect',
   );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyAPnYgHXdCdoJBGPSGvZb7jKIWfdn4pe-M',
+    appId: '1:747218037971:web:f853207e826a2cfcee7826',
+    messagingSenderId: '747218037971',
+    projectId: 'glamconnect-4000e',
+    authDomain: 'glamconnect-4000e.firebaseapp.com',
+    databaseURL: 'https://glamconnect-4000e-default-rtdb.firebaseio.com',
+    storageBucket: 'glamconnect-4000e.firebasestorage.app',
+    measurementId: 'G-H25C5K7Q0W',
+  );
+
 }

@@ -1,6 +1,1 @@
-{
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  }
-}
+{"firestore":{"rules":"firestore.rules","indexes":"firestore.indexes.json"},"flutter":{"platforms":{"android":{"default":{"projectId":"glamconnect-4000e","appId":"1:747218037971:android:164cd75698a109a8ee7826","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"glamconnect-4000e","appId":"1:747218037971:ios:45afdc8df051c7f4ee7826","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"macos":{"default":{"projectId":"glamconnect-4000e","appId":"1:747218037971:ios:45afdc8df051c7f4ee7826","uploadDebugSymbols":false,"fileOutput":"macos/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"glamconnect-4000e","configurations":{"android":"1:747218037971:android:164cd75698a109a8ee7826","ios":"1:747218037971:ios:45afdc8df051c7f4ee7826","macos":"1:747218037971:ios:45afdc8df051c7f4ee7826","web":"1:747218037971:web:3c584afee46a997eee7826","windows":"1:747218037971:web:f853207e826a2cfcee7826"}}}}}}
